@@ -65,16 +65,6 @@ namespace Injection
             AddMissedModules();
         }
 
-        #region IDisposable implementation
-
-        public void Dispose()
-        {
-            _componentDictionary.Clear();
-            _missedComponents.Clear();
-        }
-
-        #endregion
-
         #endregion
 
         #region PRIVATE METHODS
@@ -106,6 +96,16 @@ namespace Injection
                     i--;
                 }
             }
+        }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            _componentDictionary.Clear();
+            _missedComponents.Clear();
         }
 
         #endregion

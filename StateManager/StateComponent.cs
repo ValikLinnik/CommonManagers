@@ -35,11 +35,11 @@ public class StateComponent : InjectorBase<StateComponent>
 
     #endregion
 
-    #region implemented abstract members of StateListenerBase
+    #region PRIVATE METHODS
 
     private void OnStateChangedHandler(GameState arg1, GameState arg2)
     {
-        if (_states == null || _states.Length == 0) throw new Exception("States not set");
+        if (_states.IsNullOrEmpty()) throw new Exception("StateComponent.OnStateChangedHandler:States is null or empty");
 
         var states = from i in _states where i == arg1 select i;
         bool condition = states.IsNullOrEmpty();
@@ -47,4 +47,6 @@ public class StateComponent : InjectorBase<StateComponent>
     }
 
     #endregion
+
+   
 }
