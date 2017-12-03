@@ -10,7 +10,7 @@ public static class PoolExtentions
 
     public static void PutInPool<T>(this T obj) where T : Component
     {
-        obj.gameObject.SetActive(false);
+        ComponentPool.Instance.PutInPool(obj);
     }
 }
 
@@ -39,6 +39,8 @@ public class ComponentPool
     #region PRIVATE FIELDS
 
     private Dictionary<Component, List<Component>> _pool = new Dictionary<Component, List<Component>>();
+    private Dictionary<Component, Transform> _scenePool = new Dictionary<Component, Transform>();
+    private GameObject _poolWrapper;
 
     #endregion
 
@@ -66,9 +68,28 @@ public class ComponentPool
         }
         else
         {
-            _pool.Add(prefab as Component, new List<Component>());
+            if(!_poolWrapper) 
+            {
+                _poolWrapper = new GameObject("PoolWrapper");
+                _poolWrapper.transform.position = Vector3.zero;
+                _poolWrapper.SetActive(false);
+            }
+
+            var component = prefab as Component;
+            _pool.Add(component, new List<Component>());
+            var temp = new GameObject(component.GetType().ToString());
+            temp.transform.parent = _poolWrapper.transform;
+            _scenePool.Add(component, temp.transform);
+
             return GetClone<T>(prefab);
         }
+    }
+
+    public void PutInPool<T>(T item) where T : Component
+    {
+        item.gameObject.SetActive(false);
+        var parent = _scenePool[item];
+        item.transform.parent = parent;
     }
 
     #endregion
