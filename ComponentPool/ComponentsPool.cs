@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public static class PoolExtentions
 {
@@ -39,7 +40,6 @@ public class ComponentPool
     #region PRIVATE FIELDS
 
     private Dictionary<Component, List<Component>> _pool = new Dictionary<Component, List<Component>>();
-    private Dictionary<Component, Transform> _scenePool = new Dictionary<Component, Transform>();
     private GameObject _poolWrapper;
 
     #endregion
@@ -62,7 +62,7 @@ public class ComponentPool
                 }
             }
 
-            var tempInstance = Object.Instantiate(prefab) as T;
+            var tempInstance = MonoBehaviour.Instantiate(prefab) as T;
             tempList.Add(tempInstance);
             return tempInstance;
         }
@@ -77,9 +77,6 @@ public class ComponentPool
 
             var component = prefab as Component;
             _pool.Add(component, new List<Component>());
-            var temp = new GameObject(component.GetType().ToString());
-            temp.transform.parent = _poolWrapper.transform;
-            _scenePool.Add(component, temp.transform);
 
             return GetClone<T>(prefab);
         }
@@ -88,8 +85,7 @@ public class ComponentPool
     public void PutInPool<T>(T item) where T : Component
     {
         item.gameObject.SetActive(false);
-        var parent = _scenePool[item];
-        item.transform.parent = parent;
+        item.transform.SetParent(_poolWrapper.transform);
     }
 
     #endregion
