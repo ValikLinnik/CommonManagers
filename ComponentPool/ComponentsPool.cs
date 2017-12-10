@@ -40,7 +40,7 @@ public class ComponentPool
     #region PRIVATE FIELDS
 
     private Dictionary<Component, List<Component>> _pool = new Dictionary<Component, List<Component>>();
-    private GameObject _poolWrapper;
+    private PoolContainer _poolContainer;
 
     #endregion
 
@@ -69,11 +69,16 @@ public class ComponentPool
         }
         else
         {
-            if(!_poolWrapper) 
+            if(!_poolContainer) 
             {
-                _poolWrapper = new GameObject("PoolWrapper");
-                _poolWrapper.transform.position = Vector3.zero;
-                _poolWrapper.SetActive(false);
+                var temp = new GameObject("PoolWrapper");
+                _poolContainer = temp.AddComponent<PoolContainer>();
+                if(_poolContainer)
+                {
+                    _poolContainer.OnDestroyWrapper += PoolContainerOnDestroy;
+                    _poolContainer.transform.position = Vector3.zero;
+                    _poolContainer.gameObject.SetActive(false);
+                }
             }
 
             var component = prefab as Component;
@@ -83,10 +88,19 @@ public class ComponentPool
         }
     }
 
+    private void PoolContainerOnDestroy ()
+    {
+        if(_poolContainer)
+        {
+            _poolContainer.OnDestroyWrapper -= PoolContainerOnDestroy;
+            _pool.Clear();
+        }
+    }
+
     public void PutInPool<T>(T item) where T : Component
     {
         item.gameObject.SetActive(false);
-        item.transform.SetParent(_poolWrapper.transform);
+        item.transform.SetParent(_poolContainer.transform);
     }
 
     #endregion
