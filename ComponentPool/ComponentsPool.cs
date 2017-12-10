@@ -58,6 +58,7 @@ public class ComponentPool
                 if (!item.gameObject.activeSelf)
                 {
                     item.gameObject.SetActive(true);
+                    item.transform.parent = null;
                     return item as T;
                 }
             }
